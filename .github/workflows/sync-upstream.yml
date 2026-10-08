@@ -2,34 +2,33 @@ name: Sync Upstream
 
 on:
   schedule:
-      - cron: '0 1 * * *'
-        workflow_dispatch:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
 
-        permissions:
-          contents: write
+permissions:
+  contents: write
 
-          jobs:
-            sync:
-                runs-on: ubuntu-latest
-                    steps:
-                          - name: Checkout fork
-                                  uses: actions/checkout@v4
-                                          with:
-                                                    fetch-depth: 0
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-                                                          - name: Fetch upstream and merge
-                                                                  run: |
-                                                                            git config user.name "github-actions[bot]"
-                                                                                      git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-                                                                                                git remote add upstream https://github.com/byJoey/cfnew.git
-                                                                                                          git fetch upstream --tags
-                                                                                                                    git checkout main
-                                                                                                                              if git merge upstream/main --no-edit; then
-                                                                                                                                          git push origin main
-                                                                                                                                                      echo "Sync completed"
-                                                                                                                                                                else
-                                                                                                                                                                            echo "Merge conflict, manual resolution needed"
-                                                                                                                                                                                        git merge --abort
-                                                                                                                                                                                                    exit 1
-                                                                                                                                                                                                              fi
-                                                                                                                                                                                                              
+      - name: Fetch upstream and merge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/byJoey/cfnew.git
+          git fetch upstream --tags
+          git checkout main
+          if git merge upstream/main --no-edit; then
+            git push origin main
+            echo "Sync completed"
+          else
+            echo "Merge conflict, manual resolution needed"
+            git merge --abort
+            exit 1
+          fi
